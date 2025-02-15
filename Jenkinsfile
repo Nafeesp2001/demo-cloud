@@ -20,22 +20,28 @@ pipeline {
         }
 
         stage('Setup Environment') {
-            steps {
-                script {
-                    sh '''
-                    # Install pip3 if not installed
-                    apt-get update && apt-get install -y python3-pip
+    steps {
+        script {
+            sh '''
+            # Install venv if not installed
+            apt-get update && apt-get install -y python3-venv
+            
+            # Create a virtual environment
+            python3 -m venv venv
 
-                    # Verify Installation
-                    python3 --version
-                    pip3 --version
-                    
-                    # Install required Python packages
-                    pip3 install boto3 psycopg2-binary
-                    '''
-                }
-            }
+            # Activate the virtual environment
+            source venv/bin/activate
+
+            # Install required packages
+            pip install boto3 psycopg2-binary
+
+            # Deactivate environment after installation
+            deactivate
+            '''
         }
+    }
+}
+
 
         stage('Deploy Infrastructure with Terraform') {
             steps {
