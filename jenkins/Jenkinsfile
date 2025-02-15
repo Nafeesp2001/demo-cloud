@@ -2,54 +2,67 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = 'us-east-1'
-        ECR_REPO = 'etl-docker-repo'
+        AWS_REGION = "us-west-1"  // Change to your AWS region
+        S3_BUCKET = credentials('S3_BUCKET')  // Fetch S3 bucket from Jenkins credentials
+        LAMBDA_FUNCTION_NAME = "etl_lambda"  // Lambda function name
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/your-username/your-repo.git'
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
                 script {
-                    sh "docker build -t $ECR_REPO:latest docker/"
+                    git credentialsId: 'github-credentials', url: 'https://github.com/Nafeesp2001/demo-cloud.git', branch: 'main'
                 }
             }
         }
 
-        stage('Push to ECR') {
+        stage('Setup Environment') {
+            steps {
+                script {
+                    sh 'pip install boto3 psycopg2-binary'
+                }
+            }
+        }
+
+        stage('Deploy Infrastructure with Terraform') {
+            steps {
+                script {
+                    dir('terraform') {
+                        sh '''
+                        terraform init
+                        terraform apply -auto-approve
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Upload Sample Data to S3') {
+            steps {
+                script {
+                    sh "aws s3 cp sample_data.json s3://${S3_BUCKET}/"
+                }
+            }
+        }
+
+        stage('Invoke AWS Lambda') {
             steps {
                 script {
                     sh """
-                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.$AWS_REGION.amazonaws.com
-                    docker tag $ECR_REPO:latest <your-account-id>.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
-                    docker push <your-account-id>.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+                    aws lambda invoke --function-name ${LAMBDA_FUNCTION_NAME} --payload '{}' response.json
+                    cat response.json
                     """
                 }
             }
         }
 
-        stage('Deploy with Terraform') {
-            steps {
-                script {
-                    sh """
-                    cd terraform
-                    terraform init
-                    terraform apply -auto-approve
-                    """
-                }
-            }
-        }
+      
+    }
 
-        stage('Test Lambda') {
-            steps {
-                script {
-                    sh "aws lambda invoke --function-name etl_lambda --payload '{}' response.json"
-                }
+    post {
+        always {
+            script {
+                echo "Pipeline execution completed."
             }
         }
     }
