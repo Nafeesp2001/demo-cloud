@@ -148,3 +148,7 @@ resource "aws_lambda_function" "etl_lambda" {
     Environment = "Experiment"
   }
 }
+output "s3_bucket_name" {
+  value = aws_s3_bucket.my_bucket.id
+  description = "The name of the S3 bucket"
+}
