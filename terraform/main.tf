@@ -37,7 +37,7 @@ resource "aws_db_instance" "etl_rds" {
   instance_class      = "db.t3.micro"  # db.t2.micro is unsupported for PG 16
   db_name             = "etl_database"
   username           = "nafsposh"
-  password           = "Nnp@2001"
+  password           = "Abcd#1234"
   publicly_accessible = false
   skip_final_snapshot = true
 }
