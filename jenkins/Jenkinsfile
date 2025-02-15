@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+        agent {
+        docker {
+            image 'python:3.9'  // Use Python 3.9 Docker image
+        }
+    }
 
     environment {
         AWS_REGION = "us-west-1"  // Change to your AWS region
@@ -24,8 +28,6 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    # Install Python and Pip
-                    apt-get update && apt-get install -y python3 python3-pip
                     
                     # Verify Installation
                     python3 --version
