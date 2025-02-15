@@ -44,32 +44,56 @@ pipeline {
         stage('Deploy Infrastructure with Terraform') {
             steps {
                 script {
-                    dir('terraform') {
-                        sh '''
-                        terraform init
-                        terraform apply -auto-approve
-                        '''
-                    }
-                    // Capture Terraform Outputs and assign them to environment variables
-                    script {
-                        env.S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
-                        env.ECR_REPO_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
-                    }
+                    sh '''
+                    # Install Terraform if not installed
+                    if ! command -v terraform &> /dev/null; then
+                        echo "Terraform not found. Installing..."
+                        apt-get update && apt-get install -y wget unzip
+                        wget https://releases.hashicorp.com/terraform/1.5.5/terraform_1.5.5_linux_amd64.zip
+                        unzip terraform_1.5.5_linux_amd64.zip
+                        mv terraform /usr/local/bin/
+                    fi
+                    
+                    # Verify Terraform installation
+                    terraform version
+
+                    # Run Terraform commands
+                    cd terraform
+                    terraform init
+                    terraform apply -auto-approve
+                    '''
                 }
             }
-        }
+}
+
 
         stage('Build and Push Docker Image to ECR') {
             steps {
                 script {
                     sh '''
+                    # Install AWS CLI if not installed
+                    if ! command -v aws &> /dev/null; then
+                        echo "AWS CLI not found. Installing..."
+                        apt-get update && apt-get install -y unzip curl
+                        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+                        unzip awscliv2.zip
+                        ./aws/install
+                    fi
+
+                    # Verify AWS CLI installation
+                    aws --version
+
+                    # Authenticate Docker with AWS ECR
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
+
+                    # Build and push Docker image
                     docker build -t $ECR_REPO_URL:$IMAGE_TAG .
                     docker push $ECR_REPO_URL:$IMAGE_TAG
                     '''
                 }
             }
-        }
+}
+
 
         stage('Upload Sample Data to S3') {
             steps {
