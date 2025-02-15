@@ -69,7 +69,6 @@ pipeline {
             }
 }
 
-}
 
 
         stage('Build and Push Docker Image to ECR') {
