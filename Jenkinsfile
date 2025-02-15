@@ -23,6 +23,9 @@ pipeline {
             steps {
                 script {
                     sh '''
+                    # Install pip3 if not installed
+                    apt-get update && apt-get install -y python3-pip
+
                     # Verify Installation
                     python3 --version
                     pip3 --version
