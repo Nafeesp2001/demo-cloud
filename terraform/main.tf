@@ -4,7 +4,7 @@ provider "aws" {
 
 # 1. Create S3 Bucket
 resource "aws_s3_bucket" "etl_bucket" {
-  bucket = "nafeesposhar-bucket"
+  bucket = "nafees-bucket"
 }
 
 # # New ACL Resource (Replaces deprecated acl argument)
