@@ -4,7 +4,7 @@ provider "aws" {
 
 # 1. Create S3 Bucket
 resource "aws_s3_bucket" "etl_bucket" {
-  bucket = "my-etl-bucket"
+  bucket = "nafeesposhar-bucket"
 }
 
 # # New ACL Resource (Replaces deprecated acl argument)
@@ -36,8 +36,8 @@ resource "aws_db_instance" "etl_rds" {
   engine              = "postgres"
   instance_class      = "db.t3.micro"  # db.t2.micro is unsupported for PG 16
   db_name             = "etl_database"
-  username           = "admin"
-  password           = "your-secure-password"
+  username           = "nafsposh"
+  password           = "Nnp@2001"
   publicly_accessible = false
   skip_final_snapshot = true
 }
