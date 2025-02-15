@@ -1,9 +1,6 @@
 pipeline {
-    agent {
-        dockerContainer {
-            image 'python:3.9'
-        }
-    }
+    agent any
+}
 
     environment {
         AWS_REGION = "us-west-1"  // Change to your AWS region
