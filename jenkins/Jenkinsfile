@@ -6,9 +6,9 @@ pipeline {
         AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')  // Fetch AWS Account ID from Jenkins credentials
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
-        S3_BUCKET = credentials('S3_BUCKET')  // Fetch S3 bucket from Jenkins credentials
         IMAGE_TAG = "latest"
         LAMBDA_FUNCTION_NAME = "etl_lambda"
+        S3_BUCKET = ""  // Placeholder for Terraform Output
     }
 
     stages {
@@ -38,6 +38,7 @@ pipeline {
                         '''
                     }
                     script {
+                        S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
                         env.ECR_REPO_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
                     }
                 }
