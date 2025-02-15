@@ -33,7 +33,6 @@ resource "aws_ecr_repository" "etl_repo" {
 resource "aws_db_instance" "etl_rds" {
   allocated_storage    = 20
   engine               = "postgres"
-  engine_version       = "14.5"
   instance_class       = "db.t2.micro" # Free Tier eligible instance type
   db_name              = "etl_db"
   username             = "nafsposh"
