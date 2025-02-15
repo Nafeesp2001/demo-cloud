@@ -30,22 +30,19 @@ resource "aws_ecr_repository" "etl_repo" {
 }
 
 # 3. Create RDS PostgreSQL Instance (Free Tier Eligible)
-resource "aws_db_instance" "etl_rds" {
+resource "aws_db_instance" "postgres" {
   allocated_storage    = 20
-  engine               = "postgres"
-  instance_class       = "db.t2.micro" # Free Tier eligible instance type
-  db_name              = "etl_db"
-  username             = "nafsposh"
-  password             = "Nnp@2001" # Replace with a secure password
-  publicly_accessible  = false
-  skip_final_snapshot  = true
+  storage_type         = "gp2"
+  engine              = "postgres"
 
-  
-  tags = {
-    Name        = "ETL RDS Instance"
-    Environment = "Experiment"
-  }
+  instance_class      = "db.t3.micro"  
+  identifier         = "my-postgres-db"
+  username          = "nafsposh"
+  password          = "Nnp@2001"  # Consider using AWS Secrets Manager instead of hardcoding
+  publicly_accessible = false
+  skip_final_snapshot = true
 }
+
 
 
 # 5. Create Glue Database (No cost for Glue Database creation)
