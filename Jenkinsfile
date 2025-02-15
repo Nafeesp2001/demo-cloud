@@ -70,11 +70,14 @@ pipeline {
 }
 
 
-        stage('Get ECR URL') {
+        stage('Get ECR URL and S3 Bucket name') {
             steps {
                 script {
-                    ECR_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
+                    def S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
+                    ECR_URL = def sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
                     echo "ECR Repository URL: ${ECR_URL}"
+                    echo "S3 Bucket Name: ${S3_BUCKET}"
+
                 }
             }
         }
