@@ -30,17 +30,18 @@ resource "aws_ecr_repository" "etl_repo" {
 }
 
 # 3. Create RDS PostgreSQL Instance (Free Tier Eligible)
-resource "aws_db_instance" "postgres" {
+resource "aws_db_instance" "etl_rds" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine              = "postgres"
-  instance_class      = "db.t3.micro"  
-  identifier         = "my-postgres-db"
-  username          = "nafsposh"
-  password          = "Nnp@2001"  # Consider using AWS Secrets Manager instead of hardcoding
+  instance_class      = "db.t3.micro"  # db.t2.micro is unsupported for PG 16
+  db_name             = "etl_database"
+  username           = "admin"
+  password           = "your-secure-password"
   publicly_accessible = false
   skip_final_snapshot = true
 }
+
 
 
 
