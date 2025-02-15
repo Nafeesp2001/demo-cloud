@@ -7,11 +7,11 @@ resource "aws_s3_bucket" "etl_bucket" {
   bucket = "my-etl-bucket"
 }
 
-# New ACL Resource (Replaces deprecated acl argument)
-resource "aws_s3_bucket_acl" "etl_bucket_acl" {
-  bucket = aws_s3_bucket.etl_bucket.id
-  acl    = "private"
-}
+# # New ACL Resource (Replaces deprecated acl argument)
+# resource "aws_s3_bucket_acl" "etl_bucket_acl" {
+#   bucket = aws_s3_bucket.etl_bucket.id
+#   acl    = "private"
+# }
 
 # Correct Output Reference
 output "s3_bucket_name" {
