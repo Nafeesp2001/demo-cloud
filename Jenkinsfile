@@ -1,18 +1,18 @@
 pipeline {
     agent {
-        docker 'python:3.9'
-    }
-
+        docker {
+            image 'python:3.9'
+            args '--user=root'
+        }
     }
 
     environment {
         AWS_REGION = "us-west-1"  // Change to your AWS region
-        AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')  // Fetch AWS Account ID from Jenkins credentials
+        AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')  
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         IMAGE_TAG = "latest"
         LAMBDA_FUNCTION_NAME = "etl_lambda"
-        S3_BUCKET = ""  // Placeholder for Terraform Output
     }
 
     stages {
@@ -28,7 +28,6 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    
                     # Verify Installation
                     python3 --version
                     pip3 --version
@@ -40,7 +39,6 @@ pipeline {
             }
         }
 
-
         stage('Deploy Infrastructure with Terraform') {
             steps {
                 script {
@@ -50,8 +48,9 @@ pipeline {
                         terraform apply -auto-approve
                         '''
                     }
+                    // Capture Terraform Outputs and assign them to environment variables
                     script {
-                        S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
+                        env.S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
                         env.ECR_REPO_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
                     }
                 }
@@ -73,7 +72,7 @@ pipeline {
         stage('Upload Sample Data to S3') {
             steps {
                 script {
-                    sh "aws s3 cp sample_data.json s3://${S3_BUCKET}/"
+                    sh "aws s3 cp sample_data.json s3://${env.S3_BUCKET}/"
                 }
             }
         }
@@ -99,3 +98,5 @@ pipeline {
             }
         }
     }
+}
+
