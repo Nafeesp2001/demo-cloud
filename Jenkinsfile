@@ -48,22 +48,27 @@ pipeline {
                     # Install Terraform if not installed
                     if ! command -v terraform &> /dev/null; then
                         echo "Terraform not found. Installing..."
-                        apt-get update && apt-get install -y wget unzip
-                        wget https://releases.hashicorp.com/terraform/1.5.5/terraform_1.5.5_linux_amd64.zip
-                        unzip terraform_1.5.5_linux_amd64.zip
-                        mv terraform /usr/local/bin/
+                        apt-get update && apt-get install -y unzip curl
+                        
+                        # Download Terraform
+                        curl -o terraform.zip https://releases.hashicorp.com/terraform/1.5.5/terraform_1.5.5_linux_amd64.zip
+                        
+                        # Force unzip without prompt
+                        unzip -o terraform.zip -d /usr/local/bin/
+                        
+                        # Verify Terraform installation
+                        terraform version
                     fi
-                    
-                    # Verify Terraform installation
-                    terraform version
 
-                    # Run Terraform commands
+                    # Initialize and apply Terraform
                     cd terraform
                     terraform init
                     terraform apply -auto-approve
                     '''
                 }
             }
+}
+
 }
 
 
