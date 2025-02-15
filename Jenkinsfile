@@ -59,8 +59,6 @@ pipeline {
                         # Verify Terraform installation
                         terraform version
                     fi
-                    pwd
-                    ls -R
                     # Initialize and apply Terraform
                     cd terraform
                     terraform init
