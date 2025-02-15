@@ -28,7 +28,9 @@ resource "aws_ecr_repository" "etl_repo" {
     Environment = "Experiment"
   }
 }
-
+output "ecr_repository_url" {
+  value = aws_ecr_repository.etl_repo.repository_url
+}
 # 3. Create RDS PostgreSQL Instance (Free Tier Eligible)
 resource "aws_db_instance" "etl_rds" {
   allocated_storage    = 20
@@ -144,9 +146,4 @@ resource "aws_lambda_function" "etl_lambda" {
       RDS_PASS = aws_db_instance.etl_rds.password
     }
   }
-}
-
-
-output "ecr_repository_url" {
-  value = aws_ecr_repository.etl_repo.repository_url
 }
