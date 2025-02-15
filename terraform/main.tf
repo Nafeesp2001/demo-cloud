@@ -34,7 +34,6 @@ resource "aws_db_instance" "postgres" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine              = "postgres"
-
   instance_class      = "db.t3.micro"  
   identifier         = "my-postgres-db"
   username          = "nafsposh"
@@ -87,6 +86,25 @@ resource "aws_glue_catalog_table" "etl_glue_table" {
   }
 }
 
+
+resource "aws_lambda_function" "etl_lambda" {
+  filename         = "lambda_function.zip"
+  function_name    = "etl_lambda"
+  role            = aws_iam_role.lambda_role.arn
+  handler         = "lambda_function.lambda_handler"
+  runtime         = "python3.9"
+ 
+  environment {
+    variables = {
+      RDS_HOST = aws_db_instance.etl_rds.address
+      RDS_PORT = aws_db_instance.etl_rds.port
+      RDS_DB   = aws_db_instance.etl_rds.db_name
+      RDS_USER = aws_db_instance.etl_rds.username
+      RDS_PASS = aws_db_instance.etl_rds.password
+    }
+  }
+}
+
 # 7. Create IAM Role for Lambda
 resource "aws_iam_role" "lambda_role" {
   name = "etl-lambda-role"
@@ -128,32 +146,23 @@ resource "aws_iam_role_policy_attachment" "lambda_glue_policy" {
 
 # 8. Create Lambda Function
 resource "aws_lambda_function" "etl_lambda" {
-  function_name = "etl-lambda-function"
-  role          = aws_iam_role.lambda_role.arn
-  handler       = "etl.lambda_handler"
-  runtime       = "python3.9"
-
-  # Reference Docker Image from ECR
-  image_uri = "${aws_ecr_repository.etl_repo.repository_url}:latest"
-
+  filename         = "lambda_function.zip"
+  function_name    = "etl_lambda"
+  role            = aws_iam_role.lambda_role.arn
+  handler         = "lambda_function.lambda_handler"
+  runtime         = "python3.9"
+ 
   environment {
     variables = {
-      S3_BUCKET     = aws_s3_bucket.etl_bucket.bucket
-      RDS_HOST      = aws_db_instance.etl_rds.address
-      RDS_PORT      = aws_db_instance.etl_rds.port
-      RDS_DB        = aws_db_instance.etl_rds.db_name
-      RDS_USER      = aws_db_instance.etl_rds.username
-      RDS_PASS      = aws_db_instance.etl_rds.password
-      GLUE_DATABASE = aws_glue_catalog_database.etl_glue_db.name
-      GLUE_TABLE    = aws_glue_catalog_table.etl_glue_table.name
+      RDS_HOST = aws_db_instance.etl_rds.address
+      RDS_PORT = aws_db_instance.etl_rds.port
+      RDS_DB   = aws_db_instance.etl_rds.db_name
+      RDS_USER = aws_db_instance.etl_rds.username
+      RDS_PASS = aws_db_instance.etl_rds.password
     }
   }
-
-  tags = {
-    Name        = "ETL Lambda Function"
-    Environment = "Experiment"
-  }
 }
+
 
 output "ecr_repository_url" {
   value = aws_ecr_repository.etl_repo.repository_url
