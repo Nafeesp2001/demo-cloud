@@ -61,6 +61,7 @@ pipeline {
                     fi
                     # Initialize and apply Terraform
                     cd terraform
+                    terraform destroy -auto-approve
                     terraform init
                     terraform apply -auto-approve
                     '''
