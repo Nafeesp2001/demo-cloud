@@ -74,7 +74,7 @@ pipeline {
             steps {
                 script {
                     def S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
-                    ECR_URL = def sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
+                    def ECR_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
                     echo "ECR Repository URL: ${ECR_URL}"
                     echo "S3 Bucket Name: ${S3_BUCKET}"
 
@@ -114,7 +114,7 @@ pipeline {
         stage('Upload Sample Data to S3') {
             steps {
                 script {
-                    sh "aws s3 cp sample_data.json s3://${env.S3_BUCKET}/"
+                    sh "aws s3 cp sample_data.json s3://${S3_BUCKET}/"
                 }
             }
         }
