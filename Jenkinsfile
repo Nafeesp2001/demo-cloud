@@ -70,6 +70,14 @@ pipeline {
 }
 
 
+        stage('Get ECR URL') {
+            steps {
+                script {
+                    ECR_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
+                    echo "ECR Repository URL: ${ECR_URL}"
+                }
+            }
+        }
 
         stage('Build and Push Docker Image to ECR') {
             steps {
@@ -87,13 +95,13 @@ pipeline {
 
                     # Verify AWS CLI installation
                     aws --version
-
+                    
                     # Authenticate Docker with AWS ECR
-                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${ECR_URL}
 
                     # Build and push Docker image
-                    docker build -t $ECR_REPO_URL:$IMAGE_TAG .
-                    docker push $ECR_REPO_URL:$IMAGE_TAG
+                    docker build -t $ECR_URL:$IMAGE_TAG .
+                    docker push $ECR_URL:$IMAGE_TAG
                     '''
                 }
             }
