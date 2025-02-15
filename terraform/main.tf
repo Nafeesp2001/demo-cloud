@@ -4,10 +4,20 @@ provider "aws" {
 
 # 1. Create S3 Bucket
 resource "aws_s3_bucket" "etl_bucket" {
-  bucket = "nafeesposharkar-bucket" # Ensure the bucket name is unique
-  acl    = "private"
-
+  bucket = "my-etl-bucket"
 }
+
+# New ACL Resource (Replaces deprecated acl argument)
+resource "aws_s3_bucket_acl" "etl_bucket_acl" {
+  bucket = aws_s3_bucket.etl_bucket.id
+  acl    = "private"
+}
+
+# Correct Output Reference
+output "s3_bucket_name" {
+  value = aws_s3_bucket.etl_bucket.id  # Fix: Use correct resource name
+}
+
 
 # 2. Create an ECR Repository
 resource "aws_ecr_repository" "etl_repo" {
@@ -148,10 +158,7 @@ resource "aws_lambda_function" "etl_lambda" {
     Environment = "Experiment"
   }
 }
-output "s3_bucket_name" {
-  value = aws_s3_bucket.my_bucket.id
-  description = "The name of the S3 bucket"
-}
+
 output "ecr_repository_url" {
   value = aws_ecr_repository.etl_repo.repository_url
 }
