@@ -129,7 +129,7 @@ resource "aws_iam_role_policy_attachment" "lambda_glue_policy" {
 
 # 8. Create Lambda Function
 resource "aws_lambda_function" "etl_lambda" {
-  filename         = "lambda_function.zip"
+  filename         = "${path.module}/lambda_function.zip"
   function_name    = "etl_lambda"
   role            = aws_iam_role.lambda_role.arn
   handler         = "lambda_function.lambda_handler"
