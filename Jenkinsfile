@@ -2,7 +2,6 @@ pipeline {
     agent {
         dockerContainer {
             image 'python:3.9'
-            args '--user=root'
         }
     }
 
