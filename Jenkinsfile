@@ -1,8 +1,8 @@
 pipeline {
-        agent {
-        docker {
-            image 'python:3.9'  // Use Python 3.9 Docker image
-        }
+    agent {
+        docker 'python:3.9'
+    }
+
     }
 
     environment {
