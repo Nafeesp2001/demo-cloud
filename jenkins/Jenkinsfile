@@ -1,0 +1,56 @@
+pipeline {
+    agent any
+
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_REPO = 'etl-docker-repo'
+    }
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/your-username/your-repo.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    sh "docker build -t $ECR_REPO:latest docker/"
+                }
+            }
+        }
+
+        stage('Push to ECR') {
+            steps {
+                script {
+                    sh """
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin <your-account-id>.dkr.ecr.$AWS_REGION.amazonaws.com
+                    docker tag $ECR_REPO:latest <your-account-id>.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+                    docker push <your-account-id>.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO:latest
+                    """
+                }
+            }
+        }
+
+        stage('Deploy with Terraform') {
+            steps {
+                script {
+                    sh """
+                    cd terraform
+                    terraform init
+                    terraform apply -auto-approve
+                    """
+                }
+            }
+        }
+
+        stage('Test Lambda') {
+            steps {
+                script {
+                    sh "aws lambda invoke --function-name etl_lambda --payload '{}' response.json"
+                }
+            }
+        }
+    }
+}

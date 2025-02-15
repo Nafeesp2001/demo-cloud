@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "purchase_date": "2025-02-12",
+        "amount": 150.5
+    },
+    {
+        "id": 2,
+        "name": "Jane Smith",
+        "email": "jane.smith@example.com",
+        "purchase_date": "2025-02-10",
+        "amount": 200.75
+    },
+    {
+        "id": 3,
+        "name": "Alice Johnson",
+        "email": "alice.johnson@example.com",
+        "purchase_date": "2025-02-11",
+        "amount": 100.25
+    },
+    {
+        "id": 4,
+        "name": "Bob Brown",
+        "email": "bob.brown@example.com",
+        "purchase_date": "2025-02-13",
+        "amount": 250.0
+    }
+]
