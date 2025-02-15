@@ -2,7 +2,12 @@ pipeline {
     agent any
 
     environment {
-        AWS_REGION = "us-west-1"
+        AWS_REGION = "us-west-1"  // Change to your AWS region
+        AWS_ACCOUNT_ID = credentials('AWS_ACCOUNT_ID')  // Fetch AWS Account ID from Jenkins credentials
+        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        S3_BUCKET = credentials('S3_BUCKET')  // Fetch S3 bucket from Jenkins credentials
+        IMAGE_TAG = "latest"
         LAMBDA_FUNCTION_NAME = "etl_lambda"
     }
 
@@ -15,66 +20,57 @@ pipeline {
             }
         }
 
-        stage('Fetch AWS Credentials') {
+        stage('Setup Environment') {
             steps {
                 script {
-                    withCredentials([
-                        string(credentialsId: 'AWS_ACCESS_KEY_ID', variable: 'AWS_ACCESS_KEY'),
-                        string(credentialsId: 'AWS_SECRET_ACCESS_KEY', variable: 'AWS_SECRET_KEY')
-                    ]) {
-                        echo "AWS Credentials Loaded Successfully!"
-                        env.AWS_ACCESS_KEY_ID = AWS_ACCESS_KEY
-                        env.AWS_SECRET_ACCESS_KEY = AWS_SECRET_KEY
-                    }
+                    sh 'pip install boto3 psycopg2-binary'
                 }
             }
         }
 
-        stage('Deploy with Terraform') {
+        stage('Deploy Infrastructure with Terraform') {
             steps {
                 script {
-                    echo "Running Terraform..."
                     dir('terraform') {
                         sh '''
                         terraform init
                         terraform apply -auto-approve
                         '''
                     }
+                    script {
+                        env.ECR_REPO_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
+                    }
                 }
             }
         }
 
-        stage('Fetch S3 Bucket Name from Terraform') {
+        stage('Build and Push Docker Image to ECR') {
             steps {
                 script {
-                    echo "Fetching S3 bucket name from Terraform output..."
-                    env.S3_BUCKET = sh(script: "cd terraform && terraform output -raw s3_bucket_name", returnStdout: true).trim()
-                    echo "S3 Bucket Name: ${env.S3_BUCKET}"
-                }
-            }
-        }
-
-        stage('Upload to S3') {
-            steps {
-                script {
-                    echo "Uploading sample_data.json to S3 bucket: ${env.S3_BUCKET}..."
                     sh '''
-                    export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                    export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                    aws s3 cp sample_data.json s3://${S3_BUCKET}/
+                    aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REPO_URL
+                    docker build -t $ECR_REPO_URL:$IMAGE_TAG .
+                    docker push $ECR_REPO_URL:$IMAGE_TAG
                     '''
                 }
             }
         }
 
-        stage('Invoke AWS Lambda') {
+        stage('Upload Sample Data to S3') {
             steps {
                 script {
-                    echo "Invoking AWS Lambda function..."
+                    sh "aws s3 cp sample_data.json s3://${S3_BUCKET}/"
+                }
+            }
+        }
+
+        stage('Update and Deploy AWS Lambda with ECR Image') {
+            steps {
+                script {
                     sh '''
-                    export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-                    export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-                    aws lambda invoke --function-name ${LAMBDA_FUNCTION_NAME} --payload '{}' response.json
+                    aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --image-uri $ECR_REPO_URL:$IMAGE_TAG
+                    aws lambda wait function-updated --function-name $LAMBDA_FUNCTION_NAME
+                    aws lambda invoke --function-name $LAMBDA_FUNCTION_NAME --payload '{}' response.json
                     cat response.json
                     '''
                 }
@@ -83,11 +79,10 @@ pipeline {
     }
 
     post {
-        success {
-            echo "✅ Pipeline executed successfully!"
-        }
-        failure {
-            echo "❌ Pipeline failed! Check logs for errors."
+        always {
+            script {
+                echo "Pipeline execution completed."
+            }
         }
     }
 }
