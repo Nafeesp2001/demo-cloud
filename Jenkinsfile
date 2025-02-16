@@ -33,7 +33,7 @@ pipeline {
                     venv/bin/pip install --upgrade pip
 
                     # Install required packages
-                    venv/bin/pip install boto3 psycopg2-binary dotenv
+                    venv/bin/pip install boto3 psycopg2-binary python-dotenv
                     '''
                 }
             }
