@@ -29,7 +29,7 @@ pipeline {
                     # Install Terraform if not installed
                     mkdir -p $HOME/bin
                     curl -o terraform.zip https://releases.hashicorp.com/terraform/1.5.5/terraform_1.5.5_linux_amd64.zip
-                    unzip terraform.zip -d $HOME/bin
+                    unzip -o terraform.zip -d /var/jenkins_home/bin
                     echo "export PATH=$HOME/bin:\$PATH" >> ~/.bashrc
                     export PATH=$HOME/bin:$PATH
                     terraform --version
