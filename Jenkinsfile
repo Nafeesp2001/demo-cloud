@@ -64,7 +64,7 @@ pipeline {
                     terraform destroy -auto-approve
                     terraform init
                     terraform apply -auto-approve
-                    terraform output -raw s3_bucket_name
+                    terraform output -json > terraform_outputs.json
                     '''
                 }
             }
@@ -74,8 +74,8 @@ pipeline {
         stage('Get ECR URL and S3 Bucket name') {
             steps {
                 script {
-                     env.S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
-                     env.ECR_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
+                    env.S3_BUCKET = sh(script: "jq -r '.s3_bucket_name.value' terraform/terraform_outputs.json", returnStdout: true).trim()
+                    env.ECR_URL = sh(script: "jq -r '.ecr_repository_url.value' terraform/terraform_outputs.json", returnStdout: true).trim()
                     echo "ECR Repository URL: ${ECR_URL}"
                     echo "S3 Bucket Name: ${S3_BUCKET}"
 
