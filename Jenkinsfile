@@ -117,10 +117,18 @@ pipeline {
                     # Authenticate Docker with AWS ECR
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${ECR_URL}
 
+                    apt-get update
+                    apt-get install -y python3 python3-pip
+                    pip install virtualenv
+
+                    python3 -m venv venv
+                    source venv/bin/activate
+
                     # Build and push Docker image
                     docker build -t $ECR_URL:$IMAGE_TAG .
                     docker push $ECR_URL:$IMAGE_TAG
 
+                    deactivate
                     '''
                     }
                 }
