@@ -131,11 +131,13 @@ resource "aws_iam_role_policy_attachment" "lambda_glue_policy" {
 
 # 8. Create Lambda Function
 resource "aws_lambda_function" "etl_lambda" {
-  filename = "/var/jenkins_home/workspace/domo-cloud-pipeline/lambda_function.zip"
   function_name    = "etl_lambda"
   role            = aws_iam_role.lambda_role.arn
   handler         = "lambda_function.lambda_handler"
   runtime         = "python3.9"
+  package_type = "Image"
+  image_uri     = "${aws_ecr_repository.etl_repo.repository_url}:latest"  # Fetch latest image from ECR
+
  
   environment {
     variables = {
