@@ -147,3 +147,32 @@ resource "aws_lambda_function" "etl_lambda" {
     }
   }
 }
+
+
+output "rds_host" {
+  value = aws_db_instance.etl_rds.address
+}
+
+output "rds_db_name" {
+  value = aws_db_instance.etl_rds.db_name
+}
+
+output "rds_user" {
+  value = aws_db_instance.etl_rds.username
+}
+
+output "rds_password" {
+  value = aws_db_instance.etl_rds.password
+  sensitive = true
+}
+
+output "glue_database" {
+  value = aws_glue_catalog_database.etl_glue_db.name
+}
+
+output "glue_table" {
+  value = aws_glue_catalog_table.etl_glue_table.name
+}
+output "rds_port" {
+  value = aws_db_instance.etl_rds.port
+}
