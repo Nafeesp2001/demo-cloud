@@ -74,6 +74,8 @@ pipeline {
             steps{
                 script {
                     sh '''
+                echo "Installing jq..."
+                apt-get update && apt-get install -y jq
                 ENV_FILE="/var/jenkins_home/workspace/demo-cloud-pipeline/docker/env"  
                 
 
