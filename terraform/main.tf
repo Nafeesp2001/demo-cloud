@@ -131,26 +131,7 @@ resource "aws_iam_role_policy_attachment" "lambda_glue_policy" {
 
 
 
-# 8. Create Lambda Function
-resource "aws_lambda_function" "etl_lambda" {
-  function_name    = "etl_lambda"
-  role            = aws_iam_role.lambda_role.arn
-  handler         = "lambda_function.lambda_handler"
-  runtime         = "python3.9"
-  package_type = "Image"
- 
- 
-  environment {
-    variables = {
-      RDS_HOST = aws_db_instance.etl_rds.address
-      RDS_PORT = aws_db_instance.etl_rds.port
-      RDS_DB   = aws_db_instance.etl_rds.db_name
-      RDS_USER = aws_db_instance.etl_rds.username
-      RDS_PASS = aws_db_instance.etl_rds.password
-    }
-  }
 
-}
 
 
 output "rds_host" {
