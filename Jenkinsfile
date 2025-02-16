@@ -35,7 +35,9 @@ pipeline {
                     terraform --version
                     # Initialize and apply Terraform
                     cd terraform
-                    # terraform destroy -auto-approve
+                    chown -R jenkins:jenkins terraform
+                    chmod -R 777 terraform
+                    terraform destroy -auto-approve
                     terraform init
                     terraform apply -auto-approve
                     terraform output -json > terraform_outputs.json
