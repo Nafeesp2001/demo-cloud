@@ -19,26 +19,7 @@ pipeline {
             }
         }
 
-        stage('Setup Environment') {
-            steps {
-                script {
-                    sh '''
-                    # Install venv if not installed
-                    apt-get update && apt-get install -y python3-venv
-                    
-                    # Create a virtual environment
-                    python3 -m venv venv
-
-                    # Upgrade pip inside the virtual environment
-                    venv/bin/pip install --upgrade pip
-
-                    # Install required packages
-                    venv/bin/pip install boto3 psycopg2-binary python-dotenv
-                    '''
-                }
-            }
-}
-
+        
 
 
         stage('Deploy Infrastructure with Terraform') {
