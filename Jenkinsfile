@@ -64,6 +64,7 @@ pipeline {
                     terraform destroy -auto-approve
                     terraform init
                     terraform apply -auto-approve
+                    terraform output -raw s3_bucket_name
                     '''
                 }
             }
