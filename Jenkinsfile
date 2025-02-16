@@ -116,7 +116,8 @@ pipeline {
                     
                     # Authenticate Docker with AWS ECR
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${ECR_URL}
-
+                    chown root:docker /var/run/docker.sock
+                    chmod 666 /var/run/docker.sock
                     # Build and push Docker image
                     docker build -t $ECR_URL:$IMAGE_TAG .
                     docker push $ECR_URL:$IMAGE_TAG
