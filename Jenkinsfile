@@ -136,7 +136,9 @@ pipeline {
         stage('Upload Sample Data to S3') {
             steps {
                 script {
+                    dir('docker') {
                     sh "aws s3 cp sample_data.json s3://${S3_BUCKET}/"
+                    }
                 }
             }
         }
