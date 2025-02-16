@@ -19,22 +19,6 @@ pipeline {
             }
         }
 
-        
-        stage('Setting ...') {
-            steps {
-                script {
-                    sh '''
-                    echo "Downloading jq manually..."
-                    mkdir -p $HOME/bin
-                    curl -Lo $HOME/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-                    chmod +x $HOME/bin/jq
-                    export PATH=$HOME/bin:$PATH
-                    jq --version
-                    '''
-                }
-            }
-        }
-
         stage('Deploy Infrastructure with Terraform') {
             steps {
                 script {
@@ -63,6 +47,13 @@ pipeline {
             steps{
                 script {
                     sh '''
+
+                    echo "Downloading jq manually..."
+                    mkdir -p $HOME/bin
+                    curl -Lo $HOME/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+                    chmod +x $HOME/bin/jq
+                    export PATH=$HOME/bin:$PATH
+                    jq --version
                 ENV_FILE="/var/jenkins_home/workspace/domo-cloud-pipeline/docker/env"  
                 
 
