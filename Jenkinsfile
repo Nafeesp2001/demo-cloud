@@ -118,8 +118,8 @@ pipeline {
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${ECR_URL}
 
 
-                    python3 -m venv venv
-                    source venv/bin/activate
+                    python3 -m venv myvenv
+                    . myvenv/bin/activate
 
                     # Build and push Docker image
                     docker build -t $ECR_URL:$IMAGE_TAG .
