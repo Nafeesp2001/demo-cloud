@@ -35,8 +35,8 @@ pipeline {
                     terraform --version
                     # Initialize and apply Terraform
                     cd terraform
-                    chown -R jenkins:jenkins terraform
-                    chmod -R 777 terraform
+                    chown -R jenkins:jenkins .
+                    chmod -R 777 .
                     terraform destroy -auto-approve
                     terraform init
                     terraform apply -auto-approve
