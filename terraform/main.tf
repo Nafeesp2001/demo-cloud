@@ -129,20 +129,7 @@ resource "aws_iam_role_policy_attachment" "lambda_glue_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-resource "null_resource" "wait_for_ecr" {
-  provisioner "local-exec" {
-    command = <<EOT
-      echo "Waiting for ECR image to be available..."
-      while ! aws ecr list-images --repository-name etl-docker-repo --region us-west-1 | grep -q "latest"; do
-        echo "Image not found, retrying in 10s..."
-        sleep 10
-      done
-      echo "ECR image is available, proceeding..."
-    EOT
-  }
 
-  depends_on = [aws_ecr_repository.etl_repo]
-}
 
 # 8. Create Lambda Function
 resource "aws_lambda_function" "etl_lambda" {
@@ -151,8 +138,7 @@ resource "aws_lambda_function" "etl_lambda" {
   handler         = "lambda_function.lambda_handler"
   runtime         = "python3.9"
   package_type = "Image"
-  image_uri     = "${aws_ecr_repository.etl_repo.repository_url}:latest"  # Fetch latest image from ECR
-
+ 
  
   environment {
     variables = {
@@ -164,7 +150,6 @@ resource "aws_lambda_function" "etl_lambda" {
     }
   }
 
-  depends_on = [null_resource.wait_for_ecr]
 }
 
 
