@@ -33,7 +33,7 @@ pipeline {
                     venv/bin/pip install --upgrade pip
 
                     # Install required packages
-                    venv/bin/pip install boto3 psycopg2-binary
+                    venv/bin/pip install boto3 psycopg2-binary dotenv
                     '''
                 }
             }
@@ -73,8 +73,8 @@ pipeline {
         stage('Get ECR URL and S3 Bucket name') {
             steps {
                 script {
-                    def S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
-                    def ECR_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
+                     env.S3_BUCKET = sh(script: "terraform output -raw s3_bucket_name", returnStdout: true).trim()
+                     env.ECR_URL = sh(script: "terraform output -raw ecr_repository_url", returnStdout: true).trim()
                     echo "ECR Repository URL: ${ECR_URL}"
                     echo "S3 Bucket Name: ${S3_BUCKET}"
 
@@ -123,7 +123,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --image-uri $ECR_REPO_URL:$IMAGE_TAG
+                    aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --image-uri $ECR_URL:$IMAGE_TAG
                     aws lambda wait function-updated --function-name $LAMBDA_FUNCTION_NAME
                     aws lambda invoke --function-name $LAMBDA_FUNCTION_NAME --payload '{}' response.json
                     cat response.json
