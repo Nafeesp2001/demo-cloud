@@ -110,6 +110,8 @@ pipeline {
         stage('Build and Push Docker Image to ECR') {
             steps {
                 script {
+                    dir('demo-cloud-pipeline/docker') {
+
                     sh '''
                     # Install AWS CLI if not installed
                    # if ! command -v aws &> /dev/null; then
@@ -130,7 +132,9 @@ pipeline {
                     # Build and push Docker image
                     docker build -t $ECR_URL:$IMAGE_TAG .
                     docker push $ECR_URL:$IMAGE_TAG
+
                     '''
+                    }
                 }
             }
 }
