@@ -74,16 +74,26 @@ pipeline {
             }
         }
         stage('Get ECR URL and S3 Bucket name') {
-            steps {
-                script {
-                    env.S3_BUCKET = sh(script: "jq -r '.s3_bucket_name.value' /var/jenkins_home/workspace/demo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
-                    env.ECR_URL = sh(script: "jq -r '.ecr_repository_url.value' /var/jenkins_home/workspace/demo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
-                    echo "ECR Repository URL: ${ECR_URL}"
-                    echo "S3 Bucket Name: ${S3_BUCKET}"
+    steps {
+        script {
+            sh '''
+            echo "Downloading jq manually..."
+            mkdir -p $HOME/bin
+            curl -Lo $HOME/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
+            chmod +x $HOME/bin/jq
+            export PATH=$HOME/bin:$PATH
+            jq --version
+            '''
 
-                }
-            }
+            env.S3_BUCKET = sh(script: "$HOME/bin/jq -r '.s3_bucket_name.value' /var/jenkins_home/workspace/demo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
+            env.ECR_URL = sh(script: "$HOME/bin/jq -r '.ecr_repository_url.value' /var/jenkins_home/workspace/demo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
+            
+            echo "ECR Repository URL: ${env.ECR_URL}"
+            echo "S3 Bucket Name: ${env.S3_BUCKET}"
         }
+    }
+}
+
 
         stage('Build and Push Docker Image to ECR') {
             steps {
