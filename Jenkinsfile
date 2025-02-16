@@ -51,8 +51,8 @@ pipeline {
                 script {
                     sh '''
                 echo "Installing jq..."
-                apt-get update && apt-get install -y jq
-                ENV_FILE="/var/jenkins_home/workspace/demo-cloud-pipeline/docker/env"  
+                apt-get update | apt-get install -y jq
+                ENV_FILE="/var/jenkins_home/workspace/domo-cloud-pipeline/docker/env"  
                 
 
                 echo "S3_BUCKET=$(jq -r '.s3_bucket_name.value' terraform/terraform_outputs.json)" > $ENV_FILE
