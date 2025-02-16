@@ -70,12 +70,34 @@ pipeline {
             }
 }
 
+        stage('Storing outputs'){
+            steps{
+                script {
+                    sh '''
+                ENV_FILE="/var/jenkins_home/workspace/demo-cloud-pipeline/docker/env"  
+                
 
+                echo "S3_BUCKET=$(jq -r '.s3_bucket_name.value' terraform/terraform_outputs.json)" > $ENV_FILE
+                echo "RDS_HOST=$(jq -r '.rds_host.value' terraform/terraform_outputs.json)" >> $ENV_FILE
+                echo "RDS_PORT=$(jq -r '.rds_port.value' terraform/terraform_outputs.json)" >> $ENV_FILE
+                echo "RDS_DB=$(jq -r '.rds_db_name.value' terraform/terraform_outputs.json)" >> $ENV_FILE
+                echo "RDS_USER=$(jq -r '.rds_user.value' terraform/terraform_outputs.json)" >> $ENV_FILE
+                echo "RDS_PASS=$(jq -r '.rds_password.value' terraform/terraform_outputs.json)" >> $ENV_FILE
+                echo "ECR_URL=$(jq -r '.ecr_repository_url.value' terraform/terraform_outputs.json)" >> $ENV_FILE
+                echo "GLUE_DATABASE=$(jq -r '.glue_database.value' terraform/terraform_outputs.json)" >> $ENV_FILE
+                echo "GLUE_TABLE=$(jq -r '.glue_table.value' terraform/terraform_outputs.json)" >> $ENV_FILE
+                 
+
+
+                    '''
+                }
+            }
+        }
         stage('Get ECR URL and S3 Bucket name') {
             steps {
                 script {
-                    env.S3_BUCKET = sh(script: "jq -r '.s3_bucket_name.value' terraform/terraform_outputs.json", returnStdout: true).trim()
-                    env.ECR_URL = sh(script: "jq -r '.ecr_repository_url.value' terraform/terraform_outputs.json", returnStdout: true).trim()
+                    env.S3_BUCKET = sh(script: "jq -r '.s3_bucket_name.value' /var/jenkins_home/workspace/demo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
+                    env.ECR_URL = sh(script: "jq -r '.ecr_repository_url.value' /var/jenkins_home/workspace/demo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
                     echo "ECR Repository URL: ${ECR_URL}"
                     echo "S3 Bucket Name: ${S3_BUCKET}"
 
