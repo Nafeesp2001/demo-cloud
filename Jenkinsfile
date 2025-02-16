@@ -117,7 +117,6 @@ pipeline {
                     # Authenticate Docker with AWS ECR
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${ECR_URL}
 
-                    pip install virtualenv
 
                     python3 -m venv venv
                     source venv/bin/activate
