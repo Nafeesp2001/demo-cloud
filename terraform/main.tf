@@ -148,6 +148,8 @@ resource "aws_lambda_function" "etl_lambda" {
       RDS_PASS = aws_db_instance.etl_rds.password
     }
   }
+
+  depends_on = [aws_ecr_repository.etl_repo]
 }
 
 
