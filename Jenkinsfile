@@ -116,7 +116,7 @@ pipeline {
                     
                     # Authenticate Docker with AWS ECR
                     aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${ECR_URL}
-                    chmod 666 /var/run/docker.sock
+                    
 
                     python3 -m venv myvenv
                     . myvenv/bin/activate
