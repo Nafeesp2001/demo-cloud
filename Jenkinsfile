@@ -35,7 +35,7 @@ pipeline {
                     terraform --version
                     # Initialize and apply Terraform
                     cd terraform
-                    terraform destroy -auto-approve
+                    # terraform destroy -auto-approve
                     terraform init
                     terraform apply -auto-approve
                     terraform output -json > terraform_outputs.json
