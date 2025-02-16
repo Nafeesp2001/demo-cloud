@@ -85,8 +85,8 @@ pipeline {
             jq --version
             '''
 
-            env.S3_BUCKET = sh(script: "$HOME/bin/jq -r '.s3_bucket_name.value' /var/jenkins_home/workspace/demo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
-            env.ECR_URL = sh(script: "$HOME/bin/jq -r '.ecr_repository_url.value' /var/jenkins_home/workspace/demo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
+            env.S3_BUCKET = sh(script: "$HOME/bin/jq -r '.s3_bucket_name.value' /var/jenkins_home/workspace/domo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
+            env.ECR_URL = sh(script: "$HOME/bin/jq -r '.ecr_repository_url.value' /var/jenkins_home/workspace/domo-cloud-pipeline/terraform/terraform_outputs.json", returnStdout: true).trim()
             
             echo "ECR Repository URL: ${env.ECR_URL}"
             echo "S3 Bucket Name: ${env.S3_BUCKET}"
