@@ -57,7 +57,7 @@ pipeline {
                 ENV_FILE="/var/jenkins_home/workspace/domo-cloud-pipeline/docker/env"  
                 
 
-                echo "S3_BUCKET=$(jq -r '.s3_bucket_name.value' terraform/terraform_outputs.json)" > $ENV_FILE
+                echo "S3_BUCKET=$(jq -r '.s3_bucket_name.value' terraform/terraform_outputs.json)" >> $ENV_FILE
                 echo "RDS_HOST=$(jq -r '.rds_host.value' terraform/terraform_outputs.json)" >> $ENV_FILE
                 echo "RDS_PORT=$(jq -r '.rds_port.value' terraform/terraform_outputs.json)" >> $ENV_FILE
                 echo "RDS_DB=$(jq -r '.rds_db_name.value' terraform/terraform_outputs.json)" >> $ENV_FILE
@@ -123,7 +123,7 @@ pipeline {
 
                     # Build and push Docker image
                     docker build -t $ECR_URL:$IMAGE_TAG .
-                    docker push $ECR_URL:$IMAGE_TAG --quiet
+                    docker push $ECR_URL:$IMAGE_TAG 
 
                     deactivate
                     '''
