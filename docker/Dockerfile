@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copy necessary files
 COPY etl.py /app/
-
+COPY .env /app/
 # Install required dependencies
 RUN pip install --no-cache-dir boto3 psycopg2-binary python-dotenv
 
