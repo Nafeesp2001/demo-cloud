@@ -5,7 +5,11 @@ import os
 from dotenv import load_dotenv
 
 # Load .env variables
-load_dotenv('/var/jenkins_home/workspace/domo-cloud-pipeline/docker/env')
+# load_dotenv('/var/jenkins_home/workspace/domo-cloud-pipeline/docker/env')
+
+env_path = os.path.join(os.path.dirname(__file__), "env")
+print(f"Loading environment variables from: {env_path}")
+load_dotenv(env_path)
 
 S3_BUCKET = os.getenv("S3_BUCKET")
 S3_KEY = "sample_data.json"
@@ -80,30 +84,45 @@ def push_to_rds(data):
 
 def push_to_glue(data):
     """
-    Push structured data to AWS Glue.
+    Insert data into an existing AWS Glue table.
     """
     try:
-        glue.create_table(
-            DatabaseName=GLUE_DATABASE,
-            TableInput={
-                'Name': GLUE_TABLE,
-                'StorageDescriptor': {
-                    'Columns': [
-                        {'Name': 'id', 'Type': 'int'},
-                        {'Name': 'name', 'Type': 'string'},
-                        {'Name': 'email', 'Type': 'string'},
-                        {'Name': 'purchase_date', 'Type': 'string'},
-                        {'Name': 'amount', 'Type': 'double'}
+        glue_client = boto3.client("glue")
+
+        # Define partitions based on existing schema
+        partitions = [
+            {
+                "Values": [str(record["id"])],  # Partition key (modify if needed)
+                "StorageDescriptor": {
+                    "Columns": [
+                        {"Name": "id", "Type": "int"},
+                        {"Name": "name", "Type": "string"},
+                        {"Name": "email", "Type": "string"},
+                        {"Name": "purchase_date", "Type": "string"},
+                        {"Name": "amount", "Type": "double"},
                     ],
-                    'Location': f"s3://{S3_BUCKET}/glue/",
-                    'InputFormat': 'org.apache.hadoop.mapred.TextInputFormat',
-                    'OutputFormat': 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
-                }
+                    "Location": f"s3://{S3_BUCKET}/glue/",
+                    "InputFormat": "org.apache.hadoop.mapred.TextInputFormat",
+                    "OutputFormat": "org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat",
+                    "SerdeInfo": {
+                        "SerializationLibrary": "org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe",
+                    },
+                },
             }
+            for record in data
+        ]
+
+        response = glue_client.batch_create_partition(
+            DatabaseName=GLUE_DATABASE,
+            TableName=GLUE_TABLE,
+            PartitionInputList=partitions,
         )
-        print("✅ Data stored in AWS Glue successfully")
+
+        print("✅ Data inserted into AWS Glue successfully:", response)
+
     except Exception as e:
-        print(f"❌ Error storing data in AWS Glue: {e}")
+        print(f"❌ Error inserting data into AWS Glue: {e}")
+
 
 def lambda_handler(event, context):
     """
