@@ -2,9 +2,9 @@ resource "aws_lambda_function" "etl_lambda" {
   function_name    = "etl_lambda"
   role            = aws_iam_role.lambda_role.arn
   package_type    = "Zip"
-  filename        = "/var/jenkins_home/workspace/domo-cloud-pipeline/lambda_function.zip"  # ✅ Correct file path
-  handler         = "etl.lambda_handler"  # ✅ Correct handler for Python file
-  runtime         = "python3.9"  # ✅ Required for ZIP-based Lambda
+  filename        = "/var/jenkins_home/workspace/domo-cloud-pipeline/lambda_function.zip"  
+  handler         = "etl.lambda_handler"  
+  runtime         = "python3.9"  
 
   memory_size     = 512
   timeout         = 60
