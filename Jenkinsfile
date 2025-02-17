@@ -123,7 +123,7 @@ pipeline {
 
                     # Build and push Docker image
                     docker build -t $ECR_URL:$IMAGE_TAG .
-                    docker push $ECR_URL:$IMAGE_TAG
+                    docker push $ECR_URL:$IMAGE_TAG --quiet
 
                     deactivate
                     '''
