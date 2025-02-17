@@ -9,4 +9,4 @@ COPY etl.py /app/
 RUN pip install --no-cache-dir boto3 psycopg2-binary python-dotenv
 
 # Ensure environment variables are passed at runtime, not build time
-CMD ["python", "etl.py"]
+CMD ["etl.lambda_handler"]
