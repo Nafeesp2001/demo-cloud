@@ -147,7 +147,7 @@ pipeline {
             steps {
                 script {
                     sh '''
-                    AWS_PAGER="" aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --image-uri $ECR_URL:$IMAGE_TAG
+                    AWS_PAGER="" aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --zip-file fileb://lambda_function.zip
                     aws lambda wait function-updated --function-name $LAMBDA_FUNCTION_NAME
                     AWS_PAGER="" aws lambda invoke --function-name $LAMBDA_FUNCTION_NAME --payload '{}' response.json
                     cat response.json
